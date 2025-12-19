@@ -256,7 +256,7 @@ if show_hockey:
         total = sum(diag_values)
         st.latex(rf"{expr} = {total} = {end_value}")
         if total == end_value:
-            st.success("✅ 대각선의 합이 끝부분의 수와 일치합니다! (하키스틱 원리 성립)")
+            st.success("✅ 대각선의 합이 끝부분의 수와 일치합니다!")
         else:
             st.warning("⚠️ 설정 범위가 벗어나 불일치합니다.")
 
@@ -305,7 +305,6 @@ if show_fractal and st.session_state.fractal_play:
         st.rerun()
     else:
         st.session_state.fractal_play = False
-        st.success("🎉 최대 확대(32행)에 도달했습니다!")
+        st.success("")
 
-st.caption("ⓒ 2025 Pascal Visualizer — 기능 유지 + 피보나치·프랙탈 색상 버그 수정판")
 
