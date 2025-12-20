@@ -2,7 +2,7 @@ import streamlit as st
 import time
 import pandas as pd
 
-st.set_page_config(page_title="파스칼 삼각형 시각화", layout="centered")
+st.set_page_config(page_title="파스칼 삼각형", layout="centered")
 
 st.title("파스칼 삼각형")
 
@@ -42,19 +42,19 @@ option = st.sidebar.radio(
     (
         "2ⁿ 관계 보기",
         "하키스틱 원리 보기",
-        "피보나치 관계 (시각화 ver)",  # ✅ 라디오 라벨 그대로
+        "피보나치 관계 보기",  # ✅ 라디오 라벨 그대로
         "이항정리 관계 보기",
         "프랙탈 구조 보기",
-        "소수 행 보기",
+        "소수 행 특징 보기",
     ),
 )
 
 show_sum     = (option == "2ⁿ 관계 보기")
 show_hockey  = (option == "하키스틱 원리 보기")
-show_fibo    = (option == "피보나치 관계 (시각화 ver)")  # ✅ 라벨 일치로 수정
+show_fibo    = (option == "피보나치 관계")  # ✅ 라벨 일치로 수정
 show_binom   = (option == "이항정리 관계 보기")
 show_fractal = (option == "프랙탈 구조 보기")
-show_prime   = (option == "소수 행 보기")
+show_prime   = (option == "소수 행 특징 보기")
 
 # -------------------------------
 # 하키스틱 설정
@@ -306,5 +306,6 @@ if show_fractal and st.session_state.fractal_play:
     else:
         st.session_state.fractal_play = False
         st.success("")
+
 
 
