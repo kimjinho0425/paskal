@@ -81,6 +81,9 @@ if "fractal_rows" not in st.session_state:
     st.session_state.fractal_rows = 8
 if "fractal_play" not in st.session_state:
     st.session_state.fractal_play = False
+# 🔹 피보나치 애니메이션 속도 (초) 상태 추가
+if "fibo_speed" not in st.session_state:
+    st.session_state.fibo_speed = 0.8
 
 # -------------------------------
 # 피보나치 경로 및 합
@@ -218,6 +221,24 @@ if show_fibo and colB:
             })
             st.bar_chart(chart_data.set_index("대각선 번호"))
 
+            # 🔹 진행 상황(레이스 느낌) 추가
+            max_step = len(fibo_paths)
+            progress_ratio = step / max_step
+            st.progress(progress_ratio, text=f"대각선 진행: {step} / {max_step}")
+
+            current_sum = fib_vals[step - 1]
+            st.info(f"현재 {step}번째 대각선 합 = {current_sum}")
+
+        # 🔹 피보나치 애니메이션 속도 조절 슬라이더
+        speed = st.slider(
+            "애니메이션 속도 (초)", 
+            0.1, 1.5, 
+            st.session_state.fibo_speed, 
+            0.1, 
+            key="fibo_speed"
+        )
+        st.session_state.fibo_speed = speed
+
 # -------------------------------
 # 이항정리 수식
 # -------------------------------
@@ -293,7 +314,9 @@ if show_fractal:
 if show_fibo and st.session_state.fibo_play:
     if st.session_state.fibo_step < len(fibo_paths):
         st.session_state.fibo_step += 1
-        time.sleep(0.8)
+        # 🔹 속도 상태값을 이용한 딜레이
+        delay = st.session_state.get("fibo_speed", 0.8)
+        time.sleep(delay)
         st.rerun()
     else:
         st.session_state.fibo_play = False
@@ -306,7 +329,4 @@ if show_fractal and st.session_state.fractal_play:
     else:
         st.session_state.fractal_play = False
         st.success("")
-
-
-
 
