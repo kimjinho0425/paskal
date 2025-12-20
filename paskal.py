@@ -217,7 +217,7 @@ with colA:
 # 오른쪽: 피보나치 막대그래프
 if show_fibo and colB:
     with colB:
-        st.subheader("피보나치 막대그래프")
+        st.subheader("피보나치 그래프")
         step = st.session_state.fibo_step
         if step > 0:
             chart_data = pd.DataFrame({
@@ -235,7 +235,7 @@ if show_fibo and colB:
 
         # ✅ 피보나치 애니메이션 속도 조절 슬라이더 (오류 수정: 직접 대입 금지)
         st.slider(
-            "애니메이션 속도 (초)",
+            "애니메이션 속도",
             0.1, 1.5,
             st.session_state.fibo_speed,
             0.1,
@@ -342,4 +342,5 @@ if show_fractal and st.session_state.get("fractal_done", False):
     st.session_state.fractal_play = False
     st.session_state.fractal_done = False
     st.rerun()
+
 
