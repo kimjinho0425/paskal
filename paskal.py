@@ -51,7 +51,7 @@ option = st.sidebar.radio(
 
 show_sum     = (option == "2ⁿ 관계 보기")
 show_hockey  = (option == "하키스틱 원리 보기")
-show_fibo    = (option == "피보나치 관계")  # ✅ 라벨 일치로 수정
+show_fibo    = (option == "피보나치 관계 보기")  # ✅ 라벨 일치로 수정
 show_binom   = (option == "이항정리 관계 보기")
 show_fractal = (option == "프랙탈 구조 보기")
 show_prime   = (option == "소수 행 특징 보기")
@@ -306,6 +306,7 @@ if show_fractal and st.session_state.fractal_play:
     else:
         st.session_state.fractal_play = False
         st.success("")
+
 
 
 
