@@ -42,7 +42,7 @@ option = st.sidebar.radio(
     (
         "2ⁿ 관계 보기",
         "하키스틱 원리 보기",
-        "피보나치 관계 보기",
+        "피보나치 관계 보기",  # ✅ 라디오 라벨 그대로
         "이항정리 관계 보기",
         "프랙탈 구조 보기",
         "소수 행 특징 보기",
@@ -51,7 +51,7 @@ option = st.sidebar.radio(
 
 show_sum     = (option == "2ⁿ 관계 보기")
 show_hockey  = (option == "하키스틱 원리 보기")
-show_fibo    = (option == "피보나치 관계 보기")
+show_fibo    = (option == "피보나치 관계 보기")  # ✅ 라벨 일치로 수정
 show_binom   = (option == "이항정리 관계 보기")
 show_fractal = (option == "프랙탈 구조 보기")
 show_prime   = (option == "소수 행 특징 보기")
@@ -81,8 +81,12 @@ if "fractal_rows" not in st.session_state:
     st.session_state.fractal_rows = 8
 if "fractal_play" not in st.session_state:
     st.session_state.fractal_play = False
+
+# ✅ 피보나치 애니메이션 속도 (초) 상태
 if "fibo_speed" not in st.session_state:
     st.session_state.fibo_speed = 0.8
+
+# ✅ 프랙탈 애니메이션 종료 감지용
 if "fractal_done" not in st.session_state:
     st.session_state.fractal_done = False
 
@@ -103,14 +107,16 @@ for n in range(1, ROWS + 1):
 # 프랙탈용 삼각형
 # -------------------------------
 MAX_FRACTAL_ROWS = 32
-tri_to_show = pascal_triangle(st.session_state.fractal_rows) if show_fractal else tri
+if show_fractal:
+    rows = st.session_state.fractal_rows
+    tri_to_show = pascal_triangle(rows)
+else:
+    tri_to_show = tri
 
-# -------------------------------
-# ✅ 프랙탈 색칠 기준 (selectbox → radio만 변경)
-# -------------------------------
+# 프랙탈 색칠 기준
 if show_fractal:
     st.sidebar.markdown("🎨 색칠 기준")
-    color_mode = st.sidebar.radio(
+    color_mode = st.sidebar.selectbox(
         "색칠 기준 선택",
         ("홀수(시어핀스키삼각형)", "짝수", "2의 배수", "3의 배수", "4의 배수", "5의 배수"),
         index=0,
@@ -143,12 +149,14 @@ with colA:
             color  = "#FFFFFF"
             border = "1px solid #ccc"
 
+            # 하키스틱 강조
             if show_hockey:
                 if (i, j) in diag_cells:
                     color = "#FFF59D"
                 if (i, j) == end_cell:
                     color = "#FF7043"
 
+            # 피보나치 색상
             if show_fibo:
                 cur  = st.session_state.fibo_step - 1
                 upto = min(max(st.session_state.fibo_step, 0), len(fibo_paths))
@@ -162,6 +170,7 @@ with colA:
                         color  = palette[cur % len(palette)]
                         border = "2px solid #1F618D"
 
+            # ✅ 프랙탈 색칠
             if show_fractal:
                 if color_mode == "홀수(시어핀스키삼각형)":
                     color = "#000000" if val % 2 == 1 else "#FFFFFF"
@@ -176,6 +185,7 @@ with colA:
                 elif color_mode == "5의 배수":
                     color = "#000000" if val % 5 == 0 else "#FFFFFF"
 
+            # 소수 행 보기
             if show_prime and i == prime_row:
                 if is_prime(prime_row):
                     if j == 0 or j == len(row) - 1:
@@ -185,6 +195,7 @@ with colA:
                 else:
                     color = "#E0E0E0"
 
+            # 이항정리 강조
             if show_binom:
                 n_sel = st.session_state.get("binomial_row", 4)
                 if i == n_sel:
@@ -203,7 +214,131 @@ with colA:
     html.append("</div>")
     st.markdown("".join(html), unsafe_allow_html=True)
 
+# 오른쪽: 피보나치 막대그래프
+if show_fibo and colB:
+    with colB:
+        st.subheader("피보나치 막대그래프")
+        step = st.session_state.fibo_step
+        if step > 0:
+            chart_data = pd.DataFrame({
+                "대각선 번호": list(range(1, step + 1)),
+                "피보나치 합": fib_vals[:step]
+            })
+            st.bar_chart(chart_data.set_index("대각선 번호"))
+
+            max_step = len(fibo_paths)
+            progress_ratio = step / max_step
+            st.progress(progress_ratio, text=f"대각선 진행: {step} / {max_step}")
+
+            current_sum = fib_vals[step - 1]
+            st.info(f"현재 {step}번째 대각선 합 = {current_sum}")
+
+        # ✅ 피보나치 애니메이션 속도 조절 슬라이더 (오류 수정: 직접 대입 금지)
+        st.slider(
+            "애니메이션 속도 (초)",
+            0.1, 1.5,
+            st.session_state.fibo_speed,
+            0.1,
+            key="fibo_speed"
+        )
+
 # -------------------------------
-# 이하 (피보나치 그래프, 애니메이션, 자동 리셋)
-# → 네가 준 코드와 완전히 동일
+# 이항정리 수식
 # -------------------------------
+if show_binom:
+    n_sel = st.slider("행 (n) 선택", 0, ROWS - 1, 4, key="binomial_row")
+    coefficients = tri[n_sel]
+    expansion = []
+    for r, c in enumerate(coefficients):
+        a_power = n_sel - r
+        b_power = r
+        term = ""
+        if c != 1:
+            term += f"{c}"
+        if a_power > 0:
+            term += f"a^{{{a_power}}}" if a_power > 1 else "a"
+        if b_power > 0:
+            term += f"b^{{{b_power}}}" if b_power > 1 else "b"
+        expansion.append(term)
+    formula = " + ".join(expansion)
+    st.latex(rf"(a + b)^{{{n_sel}}} = {formula}")
+
+# -------------------------------
+# 하키스틱 계산식
+# -------------------------------
+if show_hockey:
+    st.markdown("---")
+    st.subheader("하키스틱 원리 계산 확인")
+    diag_values = [tri[i][j] for (i, j) in diag_cells if i < len(tri) and j < len(tri[i])]
+    diag_values = sorted(diag_values)
+    if 0 <= end_cell[0] < len(tri) and 0 <= end_cell[1] < len(tri[end_cell[0]]):
+        end_value = tri[end_cell[0]][end_cell[1]]
+    else:
+        end_value = None
+    if diag_values and end_value is not None:
+        expr = " + ".join(map(str, diag_values))
+        total = sum(diag_values)
+        st.latex(rf"{expr} = {total} = {end_value}")
+        if total == end_value:
+            st.success("✅ 대각선의 합이 끝부분의 수와 일치합니다!")
+        else:
+            st.warning("⚠️ 설정 범위가 벗어나 불일치합니다.")
+
+# -------------------------------
+# 피보나치 & 프랙탈 애니메이션
+# -------------------------------
+if show_fibo:
+    col1, col2, col3 = st.columns(3)
+    if col1.button("▶ 시작", key="f_start"):
+        st.session_state.fibo_play = True
+        if st.session_state.fibo_step <= 0:
+            st.session_state.fibo_step = 1
+    if col2.button("⏸ 일시정지", key="f_pause"):
+        st.session_state.fibo_play = False
+    if col3.button("⟲ 리셋", key="f_reset"):
+        st.session_state.fibo_play = False
+        st.session_state.fibo_step = 0
+
+if show_fractal:
+    st.markdown("---")
+    st.subheader("🎬 프랙탈 확대 애니메이션")
+    a1, a2, a3 = st.columns(3)
+    if a1.button("▶ 시작", key="fractal_start"):
+        st.session_state.fractal_play = True
+        st.session_state.fractal_done = False
+    if a2.button("⏸ 일시정지", key="fractal_pause"):
+        st.session_state.fractal_play = False
+    if a3.button("⟲ 리셋", key="fractal_reset"):
+        st.session_state.fractal_rows = 8
+        st.session_state.fractal_play = False
+        st.session_state.fractal_done = False
+
+# -------------------------------
+# 애니메이션 루프
+# -------------------------------
+if show_fibo and st.session_state.fibo_play:
+    if st.session_state.fibo_step < len(fibo_paths):
+        st.session_state.fibo_step += 1
+        delay = st.session_state.get("fibo_speed", 0.8)
+        time.sleep(delay)
+        st.rerun()
+    else:
+        st.session_state.fibo_play = False
+
+if show_fractal and st.session_state.fractal_play:
+    if st.session_state.fractal_rows < MAX_FRACTAL_ROWS:
+        st.session_state.fractal_rows += 2
+        time.sleep(0.25)
+        st.rerun()
+    else:
+        st.session_state.fractal_play = False
+        st.session_state.fractal_done = True
+        st.success("")
+
+# ✅ 프랙탈 애니메이션 종료 후 5초 뒤 자동 리셋
+if show_fractal and st.session_state.get("fractal_done", False):
+    time.sleep(5)
+    st.session_state.fractal_rows = 8
+    st.session_state.fractal_play = False
+    st.session_state.fractal_done = False
+    st.rerun()
