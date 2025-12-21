@@ -113,10 +113,10 @@ if show_fractal:
 else:
     tri_to_show = tri
 
-# 프랙탈 색칠 기준
+# 프랙탈 색칠 기준  ✅ 여기만 변경됨
 if show_fractal:
     st.sidebar.markdown("🎨 색칠 기준")
-    color_mode = st.sidebar.selectbox(
+    color_mode = st.sidebar.radio(
         "색칠 기준 선택",
         ("홀수(시어핀스키삼각형)", "짝수", "2의 배수", "3의 배수", "4의 배수", "5의 배수"),
         index=0,
@@ -170,7 +170,7 @@ with colA:
                         color  = palette[cur % len(palette)]
                         border = "2px solid #1F618D"
 
-            # ✅ 프랙탈 색칠
+            # 프랙탈 색칠
             if show_fractal:
                 if color_mode == "홀수(시어핀스키삼각형)":
                     color = "#000000" if val % 2 == 1 else "#FFFFFF"
@@ -214,7 +214,9 @@ with colA:
     html.append("</div>")
     st.markdown("".join(html), unsafe_allow_html=True)
 
+# -------------------------------
 # 오른쪽: 피보나치 막대그래프
+# -------------------------------
 if show_fibo and colB:
     with colB:
         st.subheader("피보나치 막대그래프")
@@ -233,7 +235,6 @@ if show_fibo and colB:
             current_sum = fib_vals[step - 1]
             st.info(f"현재 {step}번째 대각선 합 = {current_sum}")
 
-        # ✅ 피보나치 애니메이션 속도 조절 슬라이더 (오류 수정: 직접 대입 금지)
         st.slider(
             "애니메이션 속도 (초)",
             0.1, 1.5,
